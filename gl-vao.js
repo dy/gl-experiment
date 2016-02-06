@@ -1,3 +1,11 @@
+/**
+ * gl-vao readme case.
+ * Goal - understand what is vao, how to use it.
+ *
+ * Results
+ * - VAO is a sort of collection of attrib buffers passed to shader to work with.
+ */
+
 var shell = require("gl-now")()
 var createBuffer = require("gl-buffer")
 var createVAO = require("gl-vao")
