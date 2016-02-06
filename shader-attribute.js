@@ -56,7 +56,7 @@ shell.on('gl-init', function () {
 
 		//set new buffer
 		gl.bindBuffer(gl.ARRAY_BUFFER, buffer)
-		//why stream draw, not something else?
+		//why stream draw, not something else? no difference at first.
 		gl.bufferData(gl.ARRAY_BUFFER, data, gl.DYNAMIC_DRAW)
 
 		//enable first location
