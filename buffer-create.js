@@ -2,13 +2,13 @@
  * Creating buffer exercise
  *
  * Goal:
- * -
+ * - repeat creating of buffers
  *
  * Results:
  * - We cannot clear color once, we should do it each redraw (IDK why)
  * - usage hint param in bufferData depends on driver only for performance hit: STATIC_DRAW - for buffers which never change, DYNAMIC_DRAW - for buffers which change often, STREAM_DRAW - for buffers created and used once.
- * - uniforms/vertices for a shader object should be set after it is bound, because .bind recompiles thing apparently
- * - stackgl Shader, unf, requires buffer to be init first before being bound.
+ * - uniforms/vertices for a shader object should be set after it is bound, because .bind recompiles thing, apparently
+ * - stackgl Shader, unfortunately, requires buffer to be init first before being bound.
  * - as for gl-buffer, the bad thing is that there are no obvious connection of it with shader.
  * - We cannot set a shader attribute a new buffer value without connecting it beforehead, via gl-buffer or gl.createBuffer or somehow alike.
  */
@@ -16,7 +16,7 @@
 var shell = require('gl-now')();
 var Shader = require('gl-shader');
 var glslify = require('glslify');
-var data = require('./vertices.json');
+var data = require('./hello.json');
 var Buffer = require('gl-buffer');
 
 shell.preventDefaults = false;
