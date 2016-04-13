@@ -59,6 +59,7 @@ shell.on('gl-init', function () {
 		// gl.uniform1i(uImage, 0);
 
 		var texture = gl.createTexture();
+		// gl.activeTexture(gl.TEXTURE0)
 		gl.bindTexture(gl.TEXTURE_2D, texture);
 
 		var pixels = new Float32Array([1,1,1,1, 0,1,0,1, 0,1,0,1, 1,1,1,1]);
@@ -74,7 +75,6 @@ shell.on('gl-init', function () {
 		);
 		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
 		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
-		// gl.activeTexture(gl.TEXTURE0)
 
 		// shader.bind();
 	}

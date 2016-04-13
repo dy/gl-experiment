@@ -1,0 +1,99 @@
+<script src="https://twgljs.org/dist/twgl.min.js"></script>
+<script id="vs" type="notjs">
+attribute vec4 position;
+varying vec2 v_uv;
+
+void main() {
+  gl_Position = position;
+  v_uv = position.xy * 0.5 + 0.5;
+}
+</script>
+<script id="fs" type="notjs">
+precision mediump float;
+
+varying vec2 v_uv;
+uniform sampler2D u_texture;
+
+void main() {
+  gl_FragColor = texture2D(u_texture, v_uv);
+}
+  </script>
+<canvas id="c"></canvas>
+
+
+<script type="text/javascript">
+	var gl = document.getElementById("c").getContext("webgl");
+getExtension(gl, "OES_texture_float");
+getExtension(gl, "OES_texture_float_linear");
+var w = 300;
+var h = 150;
+
+var programInfo = twgl.createProgramInfo(gl, ["vs", "fs"]);
+gl.useProgram(programInfo.program);
+
+var arrays = {
+  position: [-1, -1, 0, 1, -1, 0, -1, 1, 0, -1, 1, 0, 1, -1, 0, 1, 1, 0],
+};
+var bufferInfo = twgl.createBufferInfoFromArrays(gl, arrays);
+twgl.setBuffersAndAttributes(gl, programInfo, bufferInfo);
+
+// make a renderable npot texture
+function createRenderableTexture(gl, w, h) {
+ var tex = gl.createTexture();
+ gl.bindTexture(gl.TEXTURE_2D, tex);
+ gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, w, h, 0, gl.RGBA, gl.FLOAT, null);
+ gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+ gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+ gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+ return tex;
+}
+
+var outTexture = createRenderableTexture(gl, w, h);
+var framebuffer = gl.createFramebuffer();
+gl.bindFramebuffer(gl.FRAMEBUFFER, framebuffer);
+gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, outTexture, 0);
+// NOTE: because we are not using one of the 3 explicitly supported texture formats
+// for framebuffer attachments we have to check that this actually works
+if (gl.checkFramebufferStatus(gl.FRAMEBUFFER) !== gl.FRAMEBUFFER_COMPLETE) {
+  alert("can't render to a floating point target on this hardware");
+}
+
+// render something to it
+gl.clearColor(0,1,0,1);  // green
+gl.clear(gl.COLOR_BUFFER_BIT);
+
+// copy the framebuffer to the texture
+var sourceTexture = createRenderableTexture(gl, w, h)
+gl.copyTexImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 0, 0, w, h, 0);
+
+// draw to canvas
+gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+
+// clear to red
+gl.clearColor(1,0,0,1);
+gl.clear(gl.COLOR_BUFFER_BIT);
+
+// Since we cleared to red and the texture is filled with green
+// the result should be green
+gl.drawArrays(gl.TRIANGLES, 0, 6);
+
+var pixels = new Uint8Array(w * h * 4);
+gl.readPixels(0, 0, w, h, gl.RGBA, gl.UNSIGNED_BYTE, pixels);
+log("pixel 0: "
+        + pixels[0] + ","
+        + pixels[1] + ","
+        + pixels[2] + ","
+        + pixels[3]);
+
+function log(msg) {
+  var div = document.createElement("pre");
+  div.appendChild(document.createTextNode(msg));
+  document.body.appendChild(div);
+}
+
+function getExtension(gl, name) {
+  if (!gl.getExtension(name)) {
+    alert("requires WebGL extension: " + name);
+  }
+}
+</script>

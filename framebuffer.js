@@ -7,6 +7,7 @@
  * Results:
  * - stackgl framebuffer is convenient in a way it provides an easy way to render to a texture of any size, easily read afterwards as FLOAT, which means we can render soundbuffer 4-channels in float!!!!
  * - stackgl’s readtexture does not work at all
+ * - using fbo is better as it also shorter 5 times than webgl framebuffer - we dont have to create texture etc
  */
 
 
@@ -40,25 +41,32 @@ var generateShader = new Shader(gl, glslify('\
 
 generateShader.bind();
 
+var stackgl = false;
+
+if (stackgl) {
+	var buffer = new Buffer(gl, [1,3, 1,-1, -3,-1]);
+	generateShader.attributes.position.pointer();
 
 
-var buffer = new Buffer(gl, [1,3, 1,-1, -3,-1]);
-generateShader.attributes.position.pointer();
+	var w = 4, h = 4;
 
+	var framebuffer = new Framebuffer(gl, [w, h], {
+		preferFloat: true,
+		// float: true,
+		depth: false,
+		color: 1
+	});
+	framebuffer.bind();
 
-var w = 4, h = 4;
+	gl.clearColor(0,0,0,1);
+	gl.clear(gl.COLOR_BUFFER_BIT);
+	gl.drawArrays(gl.TRIANGLES, 0, 3);
+}
 
-var framebuffer = new Framebuffer(gl, [w, h], {
-	// preferFloat: true,
-	// float: true,
-	depth: false,
-	color: 1
-});
-framebuffer.bind();
+else {
 
-gl.clearColor(0,0,0,1);
-gl.clear(gl.COLOR_BUFFER_BIT);
-gl.drawArrays(gl.TRIANGLES, 0, 3);
+}
+
 
 
 var stackglRead = false;
@@ -67,6 +75,7 @@ var stackglRead = false;
 if (!stackglRead) {
 	var result = new Float32Array(w * h * 4);
 	gl.readPixels(0, 0, w, h, gl.RGBA, gl.FLOAT, result);
+	console.log(result);
 }
 else {
 	var baboon = require('baboon-image');
