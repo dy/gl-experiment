@@ -51,7 +51,7 @@ if (!floatLinear) throw Error('WebGL does not support floats.');
 
 //straight shader
 var shader = createShader(gl, `
-	precision lowp float;
+	precision highp float;
 	attribute vec2 position;
 	vec2 uv;
 	varying vec4 x[16];
@@ -65,7 +65,7 @@ var shader = createShader(gl, `
 		}
 	}
 `, `
-	precision lowp float;
+	precision highp float;
 	uniform sampler2D image;
 	varying vec4 x[16];
 
