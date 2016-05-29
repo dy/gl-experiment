@@ -2,6 +2,10 @@
  * Q: how many drawbuffers we can use? We need 512..4096
  * A: only 8. Moreover, we cannot read them, we can only send them to other shader.
  * 	- We could rebind shader and render them through it... but still it is not enough of them.
+ * 	- They are perfect for channels rendering, actually. And reserve main output for tech date.
+ *
+ * Q: can we use drawbuffers instead of multiple varyings, see texture-vertex.js? Is it faster?
+ * A: nope. Drawbuffers are only for fragment shaders, vertex shader does not have gl_FragData.
  */
 
 
@@ -12,7 +16,7 @@ var savePixels = require('save-pixels');
 var now = require('performance-now');
 
 
-var w = 2, h = 2;
+var w = 512, h = 1;
 
 
 var gl = createGlContext({
@@ -42,9 +46,24 @@ gl.disable(gl.STENCIL_TEST);
 
 //straight shader
 var shader = createShader(gl, `
-	precision mediump float;
+	precision highp float;
+
 	attribute vec2 position;
-	varying vec2 uv;
+
+	uniform sampler2D noise;
+
+	varying vec4 samples[${VARYINGS}];
+
+	//generate samples
+	void main (void) {
+		gl_Position = vec4(position, 0, 1);
+
+		for (int i = 0; i < ${VARYINGS}; i++) {
+			samples[i] = texture2D(noise, vec2(float(i) / (${VARYINGS}.0 - 1.0), 0) );
+		}
+	}
+
+
 	void main (void) {
 		gl_Position = vec4(position, 0, 1);
 		uv = vec2(position.x * 0.5 + 0.5, position.y * 0.5 + 0.5);
@@ -129,10 +148,24 @@ show();
 
 
 
+
 function show () {
 	var pixels = new Float32Array(w * h * 4);
 	gl.readPixels(0, 0, w, h, gl.RGBA, gl.FLOAT, pixels);
-	document.body.appendChild(savePixels(ndarray(pixels.map(function (x,i) {
-		return x*255;
-	}), [w, h, 4]), 'canvas'));
+
+	var canvas = document.createElement('canvas');
+	canvas.width = w;
+	canvas.height = h;
+	var ctx = canvas.getContext('2d');
+	var imageData = ctx.createImageData(w, h);
+
+	pixels.forEach(function (x, i) {
+		imageData.data[i] = x*255;
+	});
+
+	ctx.putImageData(imageData, 0, 0);
+	document.body.appendChild(canvas);
 }
+
+
+

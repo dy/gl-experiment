@@ -75,6 +75,7 @@ shell.on('gl-init', function () {
 		gl.bindAttribLocation(shader.program, 2, 'color');
 
 		//link program - like bring 2 shaders together
+		//NOTE: THAT IS OBLIGATORY OTHERWISE BOUND LOCATIONS WILL FAIL TO WORK
 		gl.linkProgram(shader.program);
 		gl.useProgram(shader.program);
 

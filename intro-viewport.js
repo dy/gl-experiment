@@ -89,7 +89,7 @@ function createBunny(gl) {
   )
 
   return function (gl, t) {
-    var width  = gl.drawingBufferWidth
+    var width  = 200;//gl.drawingBufferWidth
     var height = gl.drawingBufferHeight
 
     gl.viewport(0, 0, width/2, height);
@@ -126,6 +126,7 @@ function createBunny(gl) {
 
 
 var canvas = document.createElement('canvas');
+
 var time = -Date.now();
 var gl = GL(canvas, function _render() {
   stats.begin();
